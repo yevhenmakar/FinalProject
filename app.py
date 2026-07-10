@@ -137,6 +137,9 @@ def visualize_difference(
     x_values = np.asarray(X).flatten()
     x_line = np.linspace(x_values.min(), x_values.max(), 100).reshape(-1, 1)
     y_line = model.predict(x_line)
+    y_values = np.concatenate([np.asarray(y).flatten(), np.asarray(y_line).flatten()])
+    x_margin = (x_values.max() - x_values.min()) * 0.05
+    y_margin = (y_values.max() - y_values.min()) * 0.10
 
     plt.scatter(x_values, y, c='grey', label='Dataset', alpha=0.6)
     plt.plot(x_line, y_line, color='green', linewidth=2, label='Regression line')
@@ -148,15 +151,22 @@ def visualize_difference(
     plt.xlabel('Feature')
     plt.ylabel('Target')
     plt.grid(True)
+    plt.xlim(x_values.min() - x_margin, x_values.max() + x_margin)
+    plt.ylim(y_values.min() - y_margin, y_values.max() + y_margin)
 
     plt.plot([input_feature, input_feature], [actual_target, prediction], 'k--')
 
     mid_y = (actual_target + prediction) / 2
+    x_midpoint = (x_values.min() + x_values.max()) / 2
+    label_offset = (-15, 0) if input_feature > x_midpoint else (15, 0)
+    label_alignment = 'right' if input_feature > x_midpoint else 'left'
+
     plt.annotate(
         f'Difference: {difference:.2f}',
         xy=(input_feature, mid_y),
-        xytext=(15, 0),
+        xytext=label_offset,
         textcoords='offset points',
+        ha=label_alignment,
     )
 
     st.pyplot(fig)
